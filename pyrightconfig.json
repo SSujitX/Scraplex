@@ -1,0 +1,6 @@
+{
+  "include": ["Scraplex", "test.py", "example.py"],
+  "typeCheckingMode": "off",
+  "pythonVersion": "3.11",
+  "useLibraryCodeForTypes": true
+}

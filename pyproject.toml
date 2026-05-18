@@ -1,0 +1,24 @@
+[project]
+name = "Scraplex"
+version = "0.1.0"
+description = "Multi-engine HTTP fetch orchestrator with optional fallback chains."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+wreq = ["wreq"]
+curl_cffi = ["curl-cffi"]
+cloudscraper = ["cloudscraper"]
+scrapling = ["scrapling"]
+seleniumbase = ["seleniumbase"]
+all = ["wreq", "curl-cffi", "cloudscraper", "scrapling", "seleniumbase"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["Scraplex"]
+
+[tool.hatch.build]
+include = ["Scraplex/py.typed", "Scraplex/**/*.pyi"]
