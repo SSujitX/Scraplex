@@ -31,7 +31,7 @@ from StealthPlex import Fetch
 
 fetch = Fetch(engine="seleniumbase")
 
-with fetch.SB(uc=True, test=True) as sb:
+with fetch.SB(uc=True) as sb:
     # Navigate using UC + CDP Mode
     url = "https://seleniumbase.io/apps/turnstile"
     sb.activate_cdp_mode(url)
