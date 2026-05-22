@@ -20,9 +20,36 @@ def _normalize_cookies(driver: Any) -> dict[str, str]:
     if driver is None:
         return {}
     try:
-        return {str(c["name"]): str(c["value"]) for c in driver.get_cookies()}
-    except (AttributeError, KeyError, TypeError):
+        raw = driver.get_cookies()
+    except Exception:
         return {}
+    out: dict[str, str] = {}
+    for item in raw:
+        try:
+            out[str(item["name"])] = str(item["value"])
+        except (KeyError, TypeError):
+            continue
+    return out
+
+
+def _infer_status_code(*, text: str, url: str) -> int:
+    """Best-effort status when the browser stack does not expose HTTP status."""
+    u = url.lower()
+    if any(p in u for p in ("/sign_in", "/login", "error_code=403")):
+        return 403
+    lower = text.lower()
+    if any(
+        m in lower
+        for m in (
+            "403 forbidden",
+            "access denied",
+            "cf-browser-verification",
+            "just a moment",
+            "attention required",
+        )
+    ):
+        return 403
+    return 200
 
 
 class SeleniumBaseEngine:
@@ -64,7 +91,7 @@ class SeleniumBaseEngine:
         timeout: float | None = None,
         **kwargs: Any,
     ) -> Response:
-        """Fetch URL via UC+CDP; browser-based — GET only, skipped for other methods."""
+        """Fetch URL via UC+CDP + optional solve_captcha; GET/HEAD only."""
         if method.upper() not in ("GET", "HEAD"):
             raise NotImplementedError(
                 f"seleniumbase is browser-based; {method.upper()} not supported"
@@ -75,6 +102,7 @@ class SeleniumBaseEngine:
         clean_kwargs.pop("allow_redirects", None)
         clean_kwargs.pop("redirect", None)
         clean_kwargs.pop("stream", None)
+        solve_captcha = clean_kwargs.pop("solve_captcha", True)
 
         sb_kwargs = {**self._kwargs, **clean_kwargs}
 
@@ -89,32 +117,51 @@ class SeleniumBaseEngine:
             new_query = f"{parsed.query}{sep}{query}" if parsed.query else query
             target = urlunparse(parsed._replace(query=new_query))
 
-        with _sb_factory()(**sb_kwargs) as sb:
-            # Inject cookies before navigating
-            if cookies:
-                from urllib.parse import urlparse
+        try:
+            with _sb_factory()(**sb_kwargs) as sb:
+                if cookies:
+                    from urllib.parse import urlparse
 
-                domain = urlparse(target).hostname or ""
-                sb.open("about:blank")
-                for name, value in cookies.items():
-                    sb.add_cookie({"name": name, "value": value, "domain": domain})
+                    domain = urlparse(target).hostname or ""
+                    sb.open("about:blank")
+                    for name, value in cookies.items():
+                        sb.add_cookie(
+                            {"name": name, "value": value, "domain": domain}
+                        )
 
-            # Navigate with CDP mode (undetected)
-            sb.activate_cdp_mode(target)
+                sb.activate_cdp_mode(target)
 
-            # Wait for page to load and JS challenges to resolve
-            if timeout is not None:
-                sb.sleep(min(timeout, 30.0))
-            else:
-                sb.sleep(2.0)
+                wait_s = 2.0 if timeout is None else min(max(timeout / 3, 1.0), 10.0)
+                sb.sleep(wait_s)
 
-            text = sb.get_page_source()
-            final_url = sb.get_current_url()
-            cookie_jar = _normalize_cookies(getattr(sb, "driver", None))
+                if solve_captcha:
+                    try:
+                        sb.solve_captcha()
+                    except Exception:
+                        pass
+                    sb.sleep(wait_s)
+                elif timeout is not None:
+                    sb.sleep(min(max(timeout - wait_s, 0.0), 28.0))
+
+                try:
+                    text = sb.get_page_source() or ""
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"seleniumbase get_page_source failed: {exc}"
+                    ) from exc
+                try:
+                    final_url = sb.get_current_url() or target
+                except Exception:
+                    final_url = target
+                cookie_jar = _normalize_cookies(getattr(sb, "driver", None))
+        except NotImplementedError:
+            raise
+        except Exception as exc:
+            raise RuntimeError(f"seleniumbase session failed: {exc}") from exc
 
         content = text.encode("utf-8", errors="replace")
         return Response(
-            status_code=200,
+            status_code=_infer_status_code(text=text, url=final_url),
             headers={},
             content=content,
             text=text,
