@@ -74,13 +74,15 @@ jobs:
             if (-not $previousTag) {
               return ""
             }
-            $lines = git log "${previousTag}..${currentTag}" `
-              --pretty=format:"- %s (%h)" `
-              --no-merges 2>$null
-            if (-not $lines) {
+            $entries = @(
+              git log "${previousTag}..${currentTag}" `
+                --pretty=format:"- %s (%h)" `
+                --no-merges 2>$null
+            )
+            if (-not $entries -or $entries.Count -eq 0) {
               return ""
             }
-            return "## Changes`n`n$lines"
+            return "## Changes`n`n" + ($entries -join "`n")
           }
 
           $releaseNotes = ""
@@ -124,11 +126,6 @@ jobs:
           echo $delimiter >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.14.0
-        with:
-          packages-dir: dist/
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -159,8 +156,14 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/*
+            dist/*.whl
+            dist/*.tar.gz
           fail_on_unmatched_files: true
           generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.14.0
+        with:
+          packages-dir: dist/
