@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="stealthplex_logo.png" alt="StealthPlex Logo" width="150"/>
+  <img
+    src="https://github.com/SSujitX/StealthPlex/raw/master/stealthplex_logo.png"
+    alt="StealthPlex Logo"
+    width="150"
+  />
 </p>
 
 
