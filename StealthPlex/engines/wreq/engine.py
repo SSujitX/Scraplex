@@ -114,9 +114,9 @@ class WreqEngine:
         if json is not None:
             req_kwargs["json"] = json
         if data is not None:
-            req_kwargs["data"] = data
+            req_kwargs["body"] = data
         if params is not None:
-            req_kwargs["params"] = params
+            req_kwargs["query"] = params
         if timeout is not None:
             import datetime
 
