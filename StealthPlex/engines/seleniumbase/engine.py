@@ -58,8 +58,6 @@ class SeleniumBaseEngine:
     def __init__(self) -> None:
         self._kwargs: dict[str, Any] = {
             "uc": True,
-            "headless": False,
-            "test": True,
         }
         if sys.platform.startswith("linux"):
             self._kwargs["xvfb"] = True
