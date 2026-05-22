@@ -6,7 +6,7 @@ CDP_DOCS = "https://github.com/seleniumbase/SeleniumBase/blob/master/examples/cd
 SB_UC_CDP = """
 UC + CDP Mode (recommended — not plain WebDriver):
 
-    with fetch.SB(uc=True, test=True) as sb:
+    with fetch.SB(uc=True) as sb:
         sb.activate_cdp_mode(url)   # disconnects WebDriver; enables sb.cdp.*
         sb.cdp.click(selector)      # stealth CDP click
         sb.solve_captcha()          # CAPTCHA via CDP
