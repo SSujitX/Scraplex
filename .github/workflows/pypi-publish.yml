@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v8.1.0
@@ -64,8 +66,24 @@ jobs:
         id: get_release_notes
         run: |
           $version = "${{ steps.get_version.outputs.version }}"
+          $currentTag = "${{ github.ref_name }}"
+          $previousTag = "${{ steps.get_previous_tag.outputs.previous_tag }}"
           $releaseNotesPath = "RELEASE_NOTES.md"
 
+          function Get-GitCommitNotes {
+            if (-not $previousTag) {
+              return ""
+            }
+            $lines = git log "${previousTag}..${currentTag}" `
+              --pretty=format:"- %s (%h)" `
+              --no-merges 2>$null
+            if (-not $lines) {
+              return ""
+            }
+            return "## Changes`n`n$lines"
+          }
+
+          $releaseNotes = ""
           if (Test-Path $releaseNotesPath) {
             $content = Get-Content $releaseNotesPath -Raw
             $pattern = "# StealthPlex v$version.*?(?=# StealthPlex v[\d\.]+|$)"
@@ -74,27 +92,30 @@ jobs:
               $pattern,
               [System.Text.RegularExpressions.RegexOptions]::Singleline
             )
-
             if ($match.Success) {
               $releaseNotes = $match.Value.Trim()
               $releaseNotes = $releaseNotes -replace (
                 "^# StealthPlex v$version[^\r\n]*[\r\n]*"
               ), ""
               $releaseNotes = $releaseNotes.Trim()
-            } else {
-              $releaseNotes = @"
-          ## What's New
-          - StealthPlex $version
-          - See the repository README for usage and engine extras.
-          "@.Trim()
+              echo "Using RELEASE_NOTES.md for v$version"
             }
-          } else {
+          }
+
+          if (-not $releaseNotes) {
+            $releaseNotes = Get-GitCommitNotes
+            if ($releaseNotes) {
+              echo "Using git commits ${previousTag}..${currentTag}"
+            }
+          }
+
+          if (-not $releaseNotes) {
             $releaseNotes = @"
           ## What's New
           - StealthPlex $version
           - See the repository README for usage and engine extras.
           "@.Trim()
-            echo "RELEASE_NOTES.md not found, using default notes"
+            echo "Using default release notes"
           }
 
           $delimiter = "EOF_RELEASE_NOTES_$(Get-Random)"
