@@ -20,22 +20,34 @@ Each request gets **randomized stealth fingerprints**. If one engine gets blocke
 
 ## Install
 
-Requires [uv](https://docs.astral.sh/uv/).
+### 1. Installation
+
+StealthPlex core has no default engine dependencies to remain lightweight. You must install at least one engine extra to perform requests:
 
 ```bash
-# Core only (no engines)
-uv sync
+# Install with all engines (recommended for maximum fallback capability)
+uv add StealthPlex --extra all
+# or
+pip install "StealthPlex[all]"
 
-# One engine
-uv sync --extra curl_cffi
-uv sync --extra wreq
-uv sync --extra cloudscraper
-uv sync --extra scrapling
-uv sync --extra seleniumbase
-
-# All engines (recommended)
-uv sync --extra all
+# Install specific engines only (e.g. curl_cffi and seleniumbase)
+uv add StealthPlex --extra curl_cffi --extra seleniumbase
+# or
+pip install "StealthPlex[curl_cffi,seleniumbase]"
 ```
+
+### 2. Upgrading Engines (Bypass Updates)
+
+Because anti-bot protections change constantly, you should keep all engine packages updated to their latest versions:
+
+```bash
+# Using uv (automatically upgrades all optional engines)
+uv add --upgrade "StealthPlex[all]"
+
+# Using pip (requires --upgrade-strategy eager to force upgrade of all extra engines)
+pip install --upgrade --upgrade-strategy eager "StealthPlex[all]"
+```
+
 
 ## Engines
 
