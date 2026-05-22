@@ -1,10 +1,10 @@
-# Scraplex — agent rules
+# StealthPlex — agent rules
 
 ## Naming (banned words)
 
 | Banned | Use instead |
 |--------|-------------|
-| `backend`, `Backend`, `backends/` | **engine** concept; implementations in `Scraplex/engines/` |
+| `backend`, `Backend`, `backends/` | **engine** concept; implementations in `StealthPlex/engines/` |
 | `policy`, `Policy` | `engine=` or `fallback=` |
 | `open_backend`, `open_engine`, `Use` | **`Fetch`** |
 | `Client` as factory | **`Fetch(engine=...)`** — `Client` only as upstream wreq type |
@@ -14,7 +14,7 @@
 
 - **uv only** (`uv sync`, `uv add`, `uv run`, `uv lock`)
 - Python `>=3.11`; manual check `uv run test_*.py` (no pytest/ruff)
-- Extras: `uv sync --extra wreq|curl_cffi|cloudscraper|scrapling|seleniumbase|all`
+- Extras: `uv sync --extra wreq|curl_cffi|cloudscraper|stealthplex|seleniumbase|all`
 
 ## Libraries
 
@@ -23,7 +23,7 @@
 | wreq | `wreq` | `wreq` | L1 | https://github.com/0x676e67/wreq-python |
 | curl_cffi | `curl-cffi` | `curl_cffi` | L1 | https://github.com/lexiforest/curl_cffi |
 | cloudscraper | `cloudscraper` | `cloudscraper` | L2 | https://github.com/VeNoMouS/cloudscraper |
-| scrapling | `scrapling` | `scrapling` | L3 | https://github.com/D4Vinci/Scrapling |
+| stealthplex | `scrapling` | `stealthplex` | L3 | https://github.com/D4Vinci/Scrapling |
 | seleniumbase | `seleniumbase` | `seleniumbase` | L4 | https://github.com/seleniumbase/SeleniumBase |
 
 - Core install has no engines; `Fetch(engine=...)` needs the matching extra
@@ -32,7 +32,7 @@
 ## User API (two paths only)
 
 ```python
-from Scraplex import Fetch
+from StealthPlex import Fetch
 
 # Bound engine: full upstream API on the fetch handle
 fetch = Fetch(engine="curl_cffi")
@@ -47,9 +47,9 @@ fetch = Fetch(engine="cloudscraper")
 scraper = fetch.create_scraper(browser="chrome")
 scraper.get(url)
 
-# Multi-engine: Scraplex Response + fallback chain
+# Multi-engine: StealthPlex Response + fallback chain
 fetch = Fetch(fallback=True)
-resp = fetch.get(url)                  # Scraplex.response.Response
+resp = fetch.get(url)                  # StealthPlex.response.Response
 ```
 
 | Need | Use |
@@ -58,7 +58,7 @@ resp = fetch.get(url)                  # Scraplex.response.Response
 | wreq 1:1 + IDE hints | `Fetch(engine="wreq")` |
 | cloudscraper 1:1 + IDE hints | `Fetch(engine="cloudscraper")` |
 | seleniumbase 1:1 + IDE hints | `Fetch(engine="seleniumbase")` |
-| Try next engine when blocked | `Fetch(fallback=True)` → Scraplex `Response` |
+| Try next engine when blocked | `Fetch(fallback=True)` → StealthPlex `Response` |
 
 ## Engine handles
 
@@ -67,7 +67,7 @@ resp = fetch.get(url)                  # Scraplex.response.Response
 | wreq | module proxy | `await fetch.get(...)`, `fetch.Client(...)`, `fetch.blocking.Client` |
 | curl_cffi | module proxy | `fetch.get`, `fetch.aio.get`, `fetch.Session`, `fetch.AsyncSession` |
 | cloudscraper | module proxy | `fetch.create_scraper().get(...)`, `fetch.get_tokens(url)` |
-| scrapling | `.fetcher` | `fetch.fetcher.fetch(..., headless=)` |
+| stealthplex | `.fetcher` | `fetch.fetcher.fetch(..., headless=)` |
 | seleniumbase | module proxy | `with fetch.SB(uc=True) as sb: sb.activate_cdp_mode(url)`, `sb.cdp.*`, `fetch.sb_cdp` |
 
 - IDE: per-engine `proxy.pyi`; runtime `apply_fetch_doc()` for hover on assigned `fetch`
@@ -78,8 +78,8 @@ resp = fetch.get(url)                  # Scraplex.response.Response
 ## Layout (no `src/` — package at repo root)
 
 ```
-Scraplex/                         # repo root
-  Scraplex/                       # import Scraplex (capital S)
+StealthPlex/                         # repo root
+  StealthPlex/                       # import StealthPlex (capital S and P)
     factory.py / factory.pyi      # Fetch()
     fallback_client.py          # FallbackClient
     engines/
@@ -91,8 +91,8 @@ Scraplex/                         # repo root
   test_wreq.py
 ```
 
-- `import Scraplex` not `scraplex` (Windows: never delete `scraplex` folder — same path as `Scraplex`)
-- Hatch: `packages = ["Scraplex"]`; stubs `*.pyi` included
+- `import StealthPlex` not `stealthplex` (Windows: never delete `stealthplex` folder — same path as `StealthPlex`)
+- Hatch: `packages = ["StealthPlex"]`; stubs `*.pyi` included
 
 ## Implementation
 
