@@ -1,6 +1,6 @@
 """Run: uv sync --extra curl_cffi && uv run test_curl_cffi.py"""
 
-from Scraplex import Fetch
+from StealthPlex import Fetch
 from rich import print
 
 fetch = Fetch(engine="curl_cffi")
