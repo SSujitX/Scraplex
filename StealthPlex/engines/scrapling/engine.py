@@ -146,7 +146,7 @@ class ScraplingEngine:
         if timeout is not None:
             fetch_kwargs["timeout"] = int(timeout * 1000)
 
-        fetch_kwargs.setdefault("headless", True)
+        fetch_kwargs.setdefault("headless", False)
         fetch_kwargs.setdefault("block_images", True)
         upstream = stealthy_fetcher.fetch(target, **fetch_kwargs)
         return response_from_scrapling(upstream, attempts=(self.id,))

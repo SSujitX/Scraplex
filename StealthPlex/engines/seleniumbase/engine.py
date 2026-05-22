@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 from StealthPlex.response import Response
 from StealthPlex.types import EngineId
+
 
 
 def _sb_factory() -> Any:
@@ -27,7 +29,14 @@ class SeleniumBaseEngine:
     """seleniumbase engine adapter; UC+CDP for StealthPlex fallback chain."""
 
     def __init__(self) -> None:
-        self._kwargs: dict[str, Any] = {"uc": True, "headless": True, "test": True}
+        self._kwargs: dict[str, Any] = {
+            "uc": True,
+            "headless": False,
+            "test": True,
+        }
+        if sys.platform.startswith("linux"):
+            self._kwargs["xvfb"] = True
+
 
     @property
     def id(self) -> EngineId:

@@ -20,8 +20,8 @@ class FallbackClient:
       - wreq: Rust-level TLS/HTTP2 Chrome emulation
       - curl_cffi: libcurl JA3/JA4 Chrome impersonation
       - cloudscraper: Cloudflare JS challenge solver
-      - scrapling: Playwright-based stealth headless browser
-      - seleniumbase: Undetected ChromeDriver + CDP mode
+      - scrapling: Playwright-based stealth browser (headed/Xvfb)
+      - seleniumbase: Undetected ChromeDriver + CDP mode (headed/Xvfb)
 
     Usage::
 

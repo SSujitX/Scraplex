@@ -58,10 +58,10 @@ ENGINE_INFO: dict[EngineId, EngineInfo] = {
         title="scrapling",
         github="https://github.com/D4Vinci/Scrapling",
         extra="scrapling",
-        summary="Stealth fetcher with headless browser support (Layer 3).",
+        summary="Stealth fetcher with headed/Xvfb browser support (Layer 3).",
         handle="``fetch.fetcher.fetch(...)`` for stealth / dynamic pages.",
         examples="""    fetch = Fetch(engine="scrapling")
-    r = fetch.fetcher.fetch("https://example.com", headless=True)""",
+    r = fetch.fetcher.fetch("https://example.com", headless=False)""",
     ),
     "seleniumbase": EngineInfo(
         title="seleniumbase",

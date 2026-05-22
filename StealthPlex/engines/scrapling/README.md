@@ -27,7 +27,7 @@ Use `Fetch(engine="scrapling")` to get a bound `scrapling` proxy handle. It expo
 
 ### Exposing `.fetcher` shortcut
 Per the StealthPlex API rules, the `.fetcher` attribute on the `fetch` variable is mapped directly to `StealthyFetcher`, allowing:
-`fetch.fetcher.fetch("https://example.com", headless=True)`
+`fetch.fetcher.fetch("https://example.com", headless=False)`
 
 ### 1. Stealth One-Off Fetch (Sync & Async)
 
@@ -45,7 +45,7 @@ resp = fetch.StealthyFetcher.fetch(
     hide_canvas=True,        # Avoid canvas fingerprinting
     dns_over_https=True,     # Route DNS queries via DoH
     block_ads=True,          # Block tracking/ad scripts to load faster
-    headless=True
+    headless=False           # Runs in headed mode for maximum stealth
 )
 print("Status:", resp.status)
 # Scrapling response allows BeautifulSoup-like Selector/XPath calls automatically:
@@ -56,7 +56,7 @@ async def run_async():
     r = await fetch.StealthyFetcher.async_fetch(
         "https://nowsecure.nl",
         solve_cloudflare=True,
-        headless=True
+        headless=False
     )
     print("Async Status:", r.status)
 
@@ -72,7 +72,7 @@ from StealthPlex import Fetch
 
 fetch = Fetch(engine="scrapling")
 
-with fetch.StealthySession(solve_cloudflare=True, headless=True) as session:
+with fetch.StealthySession(solve_cloudflare=True, headless=False) as session:
     # Solves CF Turnstile and sets authenticated cookies
     r1 = session.get("https://nowsecure.nl")
     print("Page 1:", r1.status)
@@ -84,7 +84,7 @@ with fetch.StealthySession(solve_cloudflare=True, headless=True) as session:
 
 For async sessions, use `AsyncStealthySession`:
 ```python
-async with fetch.AsyncStealthySession(solve_cloudflare=True, headless=True) as session:
+async with fetch.AsyncStealthySession(solve_cloudflare=True, headless=False) as session:
     r = await session.get("https://nowsecure.nl")
 ```
 
@@ -114,4 +114,4 @@ spider.start()
 
 ## 3. Fallback Client Integration
 
-In the fallback chain (`Fetch(fallback=True)`), `scrapling` is the fourth engine tried. If simple requests, TLS impersonation, and script-based bypasses fail, StealthPlex escalates to `scrapling` to spin up a stealthy headless browser, execute JavaScript, and bypass Turnstile challenges.
+In the fallback chain (`Fetch(fallback=True)`), `scrapling` is the fourth engine tried. If simple requests, TLS impersonation, and script-based bypasses fail, StealthPlex escalates to `scrapling` to spin up a stealthy headed browser (using xvfb-run or Xvfb on Linux for background execution), execute JavaScript, and bypass Turnstile challenges.

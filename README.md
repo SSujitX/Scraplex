@@ -2,7 +2,7 @@
 
 **Stealth web scraping when basic HTTP gets blocked** — Cloudflare (Turnstile, interstitial), Akamai, Imperva, Datadome, and similar bot walls.
 
-StealthPlex wraps the tools you'd reach for anyway — [wreq](https://github.com/0x676e67/wreq-python), [curl_cffi](https://github.com/lexiforest/curl_cffi), [cloudscraper](https://github.com/VeNoMouS/cloudscraper), [Scrapling](https://github.com/D4Vinci/Scrapling), and [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) — behind a single `Fetch()` interface with **built-in stealth**: randomized browser fingerprints (User-Agent, Sec-CH-UA, Sec-Fetch-*, Accept-Language, Referer), automatic TLS/JA3 impersonation, and serial engine escalation from fast HTTP all the way to headless UC/CDP browser automation.
+StealthPlex wraps the tools you'd reach for anyway — [wreq](https://github.com/0x676e67/wreq-python), [curl_cffi](https://github.com/lexiforest/curl_cffi), [cloudscraper](https://github.com/VeNoMouS/cloudscraper), [Scrapling](https://github.com/D4Vinci/Scrapling), and [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) — behind a single `Fetch()` interface with **built-in stealth**: randomized browser fingerprints (User-Agent, Sec-CH-UA, Sec-Fetch-*, Accept-Language, Referer), automatic TLS/JA3 impersonation, and serial engine escalation from fast HTTP all the way to stealth browser UC/CDP automation (headed on Windows/macOS, auto-Xvfb on Linux).
 
 ```python
 from StealthPlex import Fetch
@@ -181,7 +181,7 @@ response = scraper.get("https://example.com")
 print(response.text)
 ```
 
-#### scrapling (Stealth Headless Fetch & Selector)
+#### scrapling (Stealth Browser Fetch & Selector)
 ```python
 from StealthPlex import Fetch
 

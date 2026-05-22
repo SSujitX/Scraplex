@@ -107,4 +107,5 @@ asyncio.run(main())
 
 ## 3. Fallback Client Integration
 
-In the fallback chain (`Fetch(fallback=True)`), `seleniumbase` is the final engine (Layer 4). Because browser automation is heavy and resource-intensive, StealthPlex only falls back to `seleniumbase` when all other engines fail. During fallback requests, it starts a headless browser in UC/CDP Mode, sleep-waits, and extracts the final page source.
+In the fallback chain (`Fetch(fallback=True)`), `seleniumbase` is the final engine (Layer 4). Because browser automation is heavy and resource-intensive, StealthPlex only falls back to `seleniumbase` when all other engines fail. During fallback requests, it starts a headed browser in UC/CDP Mode (utilizing Xvfb automatically on Linux for background execution), sleep-waits, and extracts the final page source.
+
