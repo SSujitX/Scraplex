@@ -1,21 +1,20 @@
-name: Upload Python Package
+name: Publish to PyPI and Release
 
 on:
   push:
     tags:
-      - "*.*.*"
-      - "!*.*.*a*"
-      - "!*.*.*b*"
-      - "!*.*.*rc*"
-
+      - "v*.*.*"
+      - "!v*.*.*a*"
+      - "!v*.*.*b*"
+      - "!v*.*.*rc*"
 
 permissions:
-  contents: read # Required to read repository contents
-  id-token: write # Required for trusted publishing with OIDC
+  contents: write
+  id-token: write
 
 jobs:
   deploy:
-    name: Publish to PyPI
+    name: Build, release, and publish
     runs-on: ubuntu-latest
 
     steps:
@@ -30,10 +29,117 @@ jobs:
       - name: Set up Python
         run: uv python install 3.13
 
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "Version: $version"
+        shell: pwsh
+
+      - name: Get previous tag
+        id: get_previous_tag
+        run: |
+          git fetch --tags
+          $repo = "${{ github.repository }}"
+          $currentTag = "${{ github.ref_name }}"
+          $previousTag = git tag --sort=-version:refname |
+            Where-Object { $_ -ne $currentTag } |
+            Select-Object -First 1
+          if ($previousTag) {
+            echo "previous_tag=$previousTag" >> $env:GITHUB_OUTPUT
+            echo "changelog_url=https://github.com/$repo/compare/${previousTag}...${currentTag}" >> $env:GITHUB_OUTPUT
+            echo "Previous tag: $previousTag"
+          } else {
+            echo "previous_tag=" >> $env:GITHUB_OUTPUT
+            echo "changelog_url=https://github.com/$repo/releases/tag/${currentTag}" >> $env:GITHUB_OUTPUT
+            echo "No previous tag found"
+          }
+        shell: pwsh
+
       - name: Build package
         run: uv build
+
+      - name: Extract release notes
+        id: get_release_notes
+        run: |
+          $version = "${{ steps.get_version.outputs.version }}"
+          $releaseNotesPath = "RELEASE_NOTES.md"
+
+          if (Test-Path $releaseNotesPath) {
+            $content = Get-Content $releaseNotesPath -Raw
+            $pattern = "# StealthPlex v$version.*?(?=# StealthPlex v[\d\.]+|$)"
+            $match = [regex]::Match(
+              $content,
+              $pattern,
+              [System.Text.RegularExpressions.RegexOptions]::Singleline
+            )
+
+            if ($match.Success) {
+              $releaseNotes = $match.Value.Trim()
+              $releaseNotes = $releaseNotes -replace (
+                "^# StealthPlex v$version[^\r\n]*[\r\n]*"
+              ), ""
+              $releaseNotes = $releaseNotes.Trim()
+            } else {
+              $releaseNotes = @"
+          ## What's New
+          - StealthPlex $version
+          - See the repository README for usage and engine extras.
+          "@.Trim()
+            }
+          } else {
+            $releaseNotes = @"
+          ## What's New
+          - StealthPlex $version
+          - See the repository README for usage and engine extras.
+          "@.Trim()
+            echo "RELEASE_NOTES.md not found, using default notes"
+          }
+
+          $delimiter = "EOF_RELEASE_NOTES_$(Get-Random)"
+          echo "release_notes<<$delimiter" >> $env:GITHUB_OUTPUT
+          echo $releaseNotes >> $env:GITHUB_OUTPUT
+          echo $delimiter >> $env:GITHUB_OUTPUT
+        shell: pwsh
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           packages-dir: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: StealthPlex ${{ github.ref_name }}
+          body: |
+            ${{ steps.get_release_notes.outputs.release_notes }}
+
+            ### Install
+
+            ```bash
+            pip install StealthPlex==${{ steps.get_version.outputs.version }}
+            ```
+
+            With all engines:
+
+            ```bash
+            pip install "StealthPlex[all]==${{ steps.get_version.outputs.version }}"
+            ```
+
+            ### Assets
+
+            Wheel and sdist are attached below for offline installs or auditing.
+
+            ---
+
+            **Full Changelog**: ${{ steps.get_previous_tag.outputs.changelog_url }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/*
+          fail_on_unmatched_files: true
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
