@@ -22,17 +22,86 @@ Each request gets **randomized stealth fingerprints**. If one engine gets blocke
 
 ### 1. Installation
 
-StealthPlex core has no default engine dependencies to remain lightweight. You must install at least one engine extra to perform requests:
+StealthPlex core has no default engine dependencies to remain lightweight. You must install at least one engine extra to perform requests.
 
+#### Recommended: Install all engines
+
+Using **uv**:
 ```bash
-# Install with all engines (recommended for maximum fallback capability)
 uv add StealthPlex --extra all
-# or
-pip install "StealthPlex[all]"
+```
 
-# Install specific engines only (e.g. curl_cffi and seleniumbase)
+Using **pip**:
+```bash
+pip install "StealthPlex[all]"
+```
+
+#### Install individual engines
+
+##### wreq (Rust TLS / HTTP2 Impersonation)
+Using **uv**:
+```bash
+uv add StealthPlex --extra wreq
+```
+
+Using **pip**:
+```bash
+pip install "StealthPlex[wreq]"
+```
+
+##### curl_cffi (libcurl Impersonation)
+Using **uv**:
+```bash
+uv add StealthPlex --extra curl_cffi
+```
+
+Using **pip**:
+```bash
+pip install "StealthPlex[curl_cffi]"
+```
+
+##### cloudscraper (Cloudflare Solver)
+Using **uv**:
+```bash
+uv add StealthPlex --extra cloudscraper
+```
+
+Using **pip**:
+```bash
+pip install "StealthPlex[cloudscraper]"
+```
+
+##### scrapling (Playwright-based Stealth Browser)
+Using **uv**:
+```bash
+uv add StealthPlex --extra scrapling
+```
+
+Using **pip**:
+```bash
+pip install "StealthPlex[scrapling]"
+```
+
+##### seleniumbase (UC/CDP Mode Browser)
+Using **uv**:
+```bash
+uv add StealthPlex --extra seleniumbase
+```
+
+Using **pip**:
+```bash
+pip install "StealthPlex[seleniumbase]"
+```
+
+#### Install multiple specific engines
+
+Using **uv**:
+```bash
 uv add StealthPlex --extra curl_cffi --extra seleniumbase
-# or
+```
+
+Using **pip**:
+```bash
 pip install "StealthPlex[curl_cffi,seleniumbase]"
 ```
 
@@ -40,13 +109,16 @@ pip install "StealthPlex[curl_cffi,seleniumbase]"
 
 Because anti-bot protections change constantly, you should keep all engine packages updated to their latest versions:
 
+Using **uv**:
 ```bash
-# Using uv (automatically upgrades all optional engines)
 uv add --upgrade "StealthPlex[all]"
+```
 
-# Using pip (requires --upgrade-strategy eager to force upgrade of all extra engines)
+Using **pip** (requires `--upgrade-strategy eager` to force upgrade of all extra engines):
+```bash
 pip install --upgrade --upgrade-strategy eager "StealthPlex[all]"
 ```
+
 
 
 ## Engines
