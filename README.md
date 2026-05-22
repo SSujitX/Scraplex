@@ -15,7 +15,7 @@ print(resp.json())    # or JSON
 print(resp.engine)    # which engine bypassed
 ```
 
-**Fallback chain:** wreq → curl_cffi → cloudscraper → scrapling → seleniumbase  
+**Fallback chain:** curl_cffi → wreq → cloudscraper → scrapling → seleniumbase  
 Each request gets **randomized stealth fingerprints**. If one engine gets blocked, the next one takes over automatically.
 
 ## Install

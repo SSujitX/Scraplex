@@ -48,7 +48,7 @@ def Fetch(
 ) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | SeleniumBaseProxy | ScraplingProxy | FallbackClient | Any:
     """Create a stealth fetch handle.
 
-    - ``Fetch()`` — auto-stealth fallback chain (wreq → curl_cffi →
+    - ``Fetch()`` — auto-stealth fallback chain (curl_cffi → wreq →
       cloudscraper → scrapling → seleniumbase). Tries each engine
       serially until one bypasses. Returns StealthPlex ``Response``.
     - ``Fetch(engine="curl_cffi")`` — bind one upstream library's full API.
