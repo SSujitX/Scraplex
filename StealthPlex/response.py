@@ -23,7 +23,16 @@ class Response:
 
     def json(self, **kwargs: Any) -> Any:
         """Parse response body as JSON."""
-        return _json_mod.loads(self.text, **kwargs)
+        try:
+            return _json_mod.loads(self.text, **kwargs)
+        except _json_mod.JSONDecodeError as exc:
+            ctype = self.headers.get("content-type") or self.headers.get(
+                "Content-Type", ""
+            )
+            raise ValueError(
+                f"Response body is not JSON (status={self.status_code}, "
+                f"content-type={ctype!r}, engine={self.engine!r})"
+            ) from exc
 
     @property
     def ok(self) -> bool:
