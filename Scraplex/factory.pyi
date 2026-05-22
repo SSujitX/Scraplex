@@ -2,7 +2,8 @@ from typing import Literal, overload
 
 from Scraplex.engines.cloudscraper.proxy import CloudscraperProxy
 from Scraplex.engines.curl_cffi.proxy import CurlCffiProxy
-from Scraplex.engines.proxies import ScraplingProxy, SeleniumBaseProxy
+from Scraplex.engines.scrapling.proxy import ScraplingProxy
+from Scraplex.engines.seleniumbase.proxy import SeleniumBaseProxy
 from Scraplex.engines.wreq.proxy import WreqProxy
 from Scraplex.fallback_client import FallbackClient
 from Scraplex.types import EngineId

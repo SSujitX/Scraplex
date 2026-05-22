@@ -5,6 +5,8 @@ from typing import Any, Literal, overload
 from Scraplex.engines.cloudscraper import CloudscraperProxy
 from Scraplex.engines.curl_cffi import CurlCffiProxy
 from Scraplex.engines.docs import apply_fetch_doc
+from Scraplex.engines.scrapling import ScraplingProxy
+from Scraplex.engines.seleniumbase import SeleniumBaseProxy
 from Scraplex.engines.wreq import WreqProxy
 from Scraplex.exceptions import EngineNotImplemented, EngineUnavailable, FetchConfigError
 from Scraplex.fallback_client import FallbackClient
@@ -24,11 +26,11 @@ def Fetch(*, engine: Literal["cloudscraper"], fallback: None = None) -> Cloudscr
 
 
 @overload
-def Fetch(
-    *,
-    engine: Literal["scrapling", "seleniumbase"],
-    fallback: None = None,
-) -> Any: ...
+def Fetch(*, engine: Literal["seleniumbase"], fallback: None = None) -> SeleniumBaseProxy: ...
+
+
+@overload
+def Fetch(*, engine: Literal["scrapling"], fallback: None = None) -> ScraplingProxy: ...
 
 
 @overload
@@ -43,7 +45,7 @@ def Fetch(
     *,
     engine: EngineId | None = None,
     fallback: bool | list[EngineId] | None = None,
-) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | FallbackClient | Any:
+) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | SeleniumBaseProxy | FallbackClient | Any:
     """Create a fetch handle bound to one engine or a multi-engine fallback chain.
 
     Pass ``engine=`` **or** ``fallback=``, not both.
@@ -78,6 +80,20 @@ def Fetch(
         apply_fetch_doc(proxy, engine)
         if not proxy.installed():
             raise EngineUnavailable("cloudscraper", "see README.md for install")
+        return proxy
+
+    if engine == "seleniumbase":
+        proxy = SeleniumBaseProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("seleniumbase", "see README.md for install")
+        return proxy
+
+    if engine == "scrapling":
+        proxy = ScraplingProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("scrapling", "see README.md for install")
         return proxy
 
     if engine is not None:
