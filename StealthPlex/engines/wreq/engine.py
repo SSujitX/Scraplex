@@ -58,6 +58,20 @@ def response_from_wreq(
     )
 
 
+def _latest_wreq_emulation() -> Any:
+    """Find the latest Chrome emulation in wreq.Emulation."""
+    import re
+    import wreq
+
+    best_ver, best_emu = 0, wreq.Emulation.Chrome131
+    for name in dir(wreq.Emulation):
+        m = re.match(r"^Chrome(\d+)$", name)
+        if m and int(m.group(1)) > best_ver:
+            best_ver = int(m.group(1))
+            best_emu = getattr(wreq.Emulation, name)
+    return best_emu
+
+
 class WreqEngine:
     """wreq engine adapter; blocking.Client for StealthPlex fallback chain."""
 
@@ -70,10 +84,11 @@ class WreqEngine:
 
     @property
     def client(self) -> BlockingClient:
-        """Return wreq blocking Client with Chrome131 emulation enabled."""
+        """Return wreq blocking Client with latest Chrome emulation."""
         if self._client is None:
-            import wreq
-            self._client = _blocking_client()(emulation=wreq.Emulation.Chrome131)
+            self._client = _blocking_client()(
+                emulation=_latest_wreq_emulation(),
+            )
         return self._client
 
     def installed(self) -> bool:

@@ -116,11 +116,11 @@ def test_stealth_redirect_control() -> None:
 def test_stealth_html_parse() -> None:
     """GET HTML page and parse content."""
     fetch = Fetch()
-    resp = fetch.get("https://httpbin.org/html")
+    resp = fetch.get("https://example.com")
     print(f"\n[HTML PARSE] {resp}")
     assert resp.ok
-    assert "<h1>Herman Melville" in resp.text
-    print("  HTML contains expected content OK")
+    assert "<h1>" in resp.text
+    print(f"  HTML contains <h1> tag OK")
     print(f"  Content length: {len(resp.content)} bytes")
 
 

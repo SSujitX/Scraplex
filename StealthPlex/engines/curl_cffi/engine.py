@@ -55,6 +55,19 @@ def response_from_curl(
     )
 
 
+def _latest_chrome_impersonate() -> str:
+    """Find the latest chrome fingerprint in curl_cffi BrowserType."""
+    import re
+    from curl_cffi.requests import BrowserType
+
+    best_ver, best_name = 0, "chrome"
+    for name in dir(BrowserType):
+        m = re.match(r"^chrome(\d+)$", name)
+        if m and int(m.group(1)) > best_ver:
+            best_ver, best_name = int(m.group(1)), name
+    return best_name
+
+
 class CurlCffiEngine:
     """curl_cffi engine adapter; session.request for StealthPlex fallback chain."""
 
@@ -68,9 +81,11 @@ class CurlCffiEngine:
 
     @property
     def session(self) -> Session:
-        """Return curl_cffi Session with Chrome impersonation enabled."""
+        """Return curl_cffi Session with latest Chrome impersonation."""
         if self._session is None:
-            self._session = _import_curl_cffi_session()(impersonate="chrome")
+            self._session = _import_curl_cffi_session()(
+                impersonate=_latest_chrome_impersonate(),
+            )
         return self._session
 
     def installed(self) -> bool:
