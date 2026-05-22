@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="stealthplex_logo.png" alt="StealthPlex Logo" width="280"/>
+  <img src="stealthplex_logo.png" alt="StealthPlex Logo" width="150"/>
 </p>
+
 
 # StealthPlex
 
