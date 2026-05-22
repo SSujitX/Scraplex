@@ -1,4 +1,9 @@
+<p align="center">
+  <img src="stealthplex_logo.png" alt="StealthPlex Logo" width="280"/>
+</p>
+
 # StealthPlex
+
 
 **Stealth web scraping when basic HTTP gets blocked** — Cloudflare (Turnstile, interstitial), Akamai, Imperva, Datadome, and similar bot walls.
 
