@@ -14,7 +14,7 @@
 
 - **uv only** (`uv sync`, `uv add`, `uv run`, `uv lock`)
 - Python `>=3.11`; manual check `uv run test_*.py` (no pytest/ruff)
-- Extras: `uv sync --extra wreq|curl_cffi|cloudscraper|stealthplex|seleniumbase|all`
+- Extras: `uv sync --extra wreq|curl_cffi|cloudscraper|scrapling|seleniumbase|all`
 
 ## Libraries
 
@@ -23,7 +23,7 @@
 | wreq | `wreq` | `wreq` | L1 | https://github.com/0x676e67/wreq-python |
 | curl_cffi | `curl-cffi` | `curl_cffi` | L1 | https://github.com/lexiforest/curl_cffi |
 | cloudscraper | `cloudscraper` | `cloudscraper` | L2 | https://github.com/VeNoMouS/cloudscraper |
-| stealthplex | `scrapling` | `stealthplex` | L3 | https://github.com/D4Vinci/Scrapling |
+| scrapling | `scrapling` | `scrapling` | L3 | https://github.com/D4Vinci/Scrapling |
 | seleniumbase | `seleniumbase` | `seleniumbase` | L4 | https://github.com/seleniumbase/SeleniumBase |
 
 - Core install has no engines; `Fetch(engine=...)` needs the matching extra
@@ -67,7 +67,7 @@ resp = fetch.get(url)                  # StealthPlex.response.Response
 | wreq | module proxy | `await fetch.get(...)`, `fetch.Client(...)`, `fetch.blocking.Client` |
 | curl_cffi | module proxy | `fetch.get`, `fetch.aio.get`, `fetch.Session`, `fetch.AsyncSession` |
 | cloudscraper | module proxy | `fetch.create_scraper().get(...)`, `fetch.get_tokens(url)` |
-| stealthplex | `.fetcher` | `fetch.fetcher.fetch(..., headless=)` |
+| scrapling | `.fetcher` | `fetch.fetcher.fetch(..., headless=)` |
 | seleniumbase | module proxy | `with fetch.SB(uc=True) as sb: sb.activate_cdp_mode(url)`, `sb.cdp.*`, `fetch.sb_cdp` |
 
 - IDE: per-engine `proxy.pyi`; runtime `apply_fetch_doc()` for hover on assigned `fetch`
@@ -117,6 +117,7 @@ StealthPlex/                         # repo root
 uv sync --extra curl_cffi && uv run test_curl_cffi.py
 uv sync --extra wreq && uv run test_wreq.py
 uv sync --extra cloudscraper && uv run test_cloudscraper.py
+uv sync --extra scrapling && uv run test_scrapling.py
 uv sync --extra seleniumbase && uv run test_seleniumbase.py
 uv lock --upgrade
 ```

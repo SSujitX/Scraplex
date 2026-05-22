@@ -1,7 +1,7 @@
 [project]
 name = "StealthPlex"
 version = "0.1.0"
-description = "Multi-engine HTTP fetch orchestrator with optional fallback chains."
+description = "Python scraping with curl_cffi, wreq, cloudscraper, Scrapling, or SeleniumBase UC/CDP—swap engines or auto-escalate past Cloudflare and bot checks."
 requires-python = ">=3.11"
 dependencies = []
 
@@ -9,7 +9,7 @@ dependencies = []
 wreq = ["wreq"]
 curl_cffi = ["curl-cffi"]
 cloudscraper = ["cloudscraper"]
-stealthplex = ["scrapling[fetchers]"]
+scrapling = ["scrapling[fetchers]"]
 seleniumbase = ["seleniumbase"]
 all = ["wreq", "curl-cffi", "cloudscraper", "scrapling[fetchers]", "seleniumbase"]
 

@@ -1,0 +1,102 @@
+from __future__ import annotations
+
+from typing import Any, Literal, overload
+
+from StealthPlex.engines.cloudscraper import CloudscraperProxy
+from StealthPlex.engines.curl_cffi import CurlCffiProxy
+from StealthPlex.engines.docs import apply_fetch_doc
+from StealthPlex.engines.seleniumbase import SeleniumBaseProxy
+from StealthPlex.engines.scrapling import ScraplingProxy
+from StealthPlex.engines.wreq import WreqProxy
+from StealthPlex.exceptions import EngineNotImplemented, EngineUnavailable, FetchConfigError
+from StealthPlex.fallback_client import FallbackClient
+from StealthPlex.types import EngineId
+
+
+@overload
+def Fetch(*, engine: Literal["curl_cffi"], fallback: None = None) -> CurlCffiProxy: ...
+
+
+@overload
+def Fetch(*, engine: Literal["wreq"], fallback: None = None) -> WreqProxy: ...
+
+
+@overload
+def Fetch(*, engine: Literal["cloudscraper"], fallback: None = None) -> CloudscraperProxy: ...
+
+
+@overload
+def Fetch(*, engine: Literal["seleniumbase"], fallback: None = None) -> SeleniumBaseProxy: ...
+
+
+@overload
+def Fetch(*, engine: Literal["scrapling"], fallback: None = None) -> ScraplingProxy: ...
+
+
+@overload
+def Fetch(
+    *,
+    engine: None = None,
+    fallback: bool | list[EngineId],
+) -> FallbackClient: ...
+
+
+def Fetch(
+    *,
+    engine: EngineId | None = None,
+    fallback: bool | list[EngineId] | None = None,
+) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | SeleniumBaseProxy | ScraplingProxy | FallbackClient | Any:
+    """Create a fetch handle bound to one engine or a multi-engine fallback chain.
+
+    Pass ``engine=`` **or** ``fallback=``, not both.
+
+    Args:
+        engine: Bind one upstream library (``"curl_cffi"``, ``"wreq"``, ...).
+            Returns that library's API — hover the return value for engine docs.
+        fallback: Multi-engine chain. ``True`` = default order; or a list of engine ids.
+            Returns StealthPlex ``Response`` with ``.attempts``.
+    """
+    if engine is not None and fallback is not None:
+        raise FetchConfigError("pass engine= or fallback=, not both")
+    if engine is None and fallback is None:
+        raise FetchConfigError("pass engine= or fallback=")
+
+    if engine == "curl_cffi":
+        proxy = CurlCffiProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("curl_cffi", "see README.md for install")
+        return proxy
+
+    if engine == "wreq":
+        proxy = WreqProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("wreq", "see README.md for install")
+        return proxy
+
+    if engine == "cloudscraper":
+        proxy = CloudscraperProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("cloudscraper", "see README.md for install")
+        return proxy
+
+    if engine == "seleniumbase":
+        proxy = SeleniumBaseProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("seleniumbase", "see README.md for install")
+        return proxy
+
+    if engine == "scrapling":
+        proxy = ScraplingProxy()
+        apply_fetch_doc(proxy, engine)
+        if not proxy.installed():
+            raise EngineUnavailable("scrapling", "see README.md for install")
+        return proxy
+
+    if engine is not None:
+        raise EngineNotImplemented(engine)
+
+    return FallbackClient(fallback=fallback)

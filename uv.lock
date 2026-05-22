@@ -1548,11 +1548,11 @@ cloudscraper = [
 curl-cffi = [
     { name = "curl-cffi" },
 ]
+scrapling = [
+    { name = "scrapling", extra = ["fetchers"] },
+]
 seleniumbase = [
     { name = "seleniumbase" },
-]
-stealthplex = [
-    { name = "scrapling", extra = ["fetchers"] },
 ]
 wreq = [
     { name = "wreq" },
@@ -1565,13 +1565,13 @@ requires-dist = [
     { name = "curl-cffi", marker = "extra == 'all'" },
     { name = "curl-cffi", marker = "extra == 'curl-cffi'" },
     { name = "scrapling", extras = ["fetchers"], marker = "extra == 'all'" },
-    { name = "scrapling", extras = ["fetchers"], marker = "extra == 'stealthplex'" },
+    { name = "scrapling", extras = ["fetchers"], marker = "extra == 'scrapling'" },
     { name = "seleniumbase", marker = "extra == 'all'" },
     { name = "seleniumbase", marker = "extra == 'seleniumbase'" },
     { name = "wreq", marker = "extra == 'all'" },
     { name = "wreq", marker = "extra == 'wreq'" },
 ]
-provides-extras = ["wreq", "curl-cffi", "cloudscraper", "stealthplex", "seleniumbase", "all"]
+provides-extras = ["wreq", "curl-cffi", "cloudscraper", "scrapling", "seleniumbase", "all"]
 
 [[package]]
 name = "tabcompleter"

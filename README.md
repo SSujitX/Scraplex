@@ -1,12 +1,21 @@
 # StealthPlex
 
-StealthPlex is a multi-engine fetch layer for Python scraping. You choose how hard a target is to reach—then bind the right tool without rewriting your project.
+**Python web scraping when basic HTTP gets blocked** — Cloudflare (Turnstile, interstitial), Akamai, Imperva, Datadome, and similar bot walls.
 
-Use **one engine** when you know what works: TLS impersonation with [curl_cffi](https://github.com/lexiforest/curl_cffi), async fingerprinting with [wreq](https://github.com/0x676e67/wreq-python), Cloudflare sessions with [cloudscraper](https://github.com/VeNoMouS/cloudscraper), adaptive crawls with [Scrapling](https://github.com/D4Vinci/Scrapling) (under the `stealthplex` engine), or full browser control with [SeleniumBase](https://github.com/seleniumbase/SeleniumBase). Each path exposes that library’s real API on a single `fetch` handle—autocomplete, docstrings, and upstream types included.
+StealthPlex is a thin layer over the tools you’d reach for anyway: [curl_cffi](https://github.com/lexiforest/curl_cffi) and [wreq](https://github.com/0x676e67/wreq-python) for **TLS / JA3-style fingerprints**, [cloudscraper](https://github.com/VeNoMouS/cloudscraper) for **Cloudflare cookie sessions**, [Scrapling](https://github.com/D4Vinci/Scrapling) for **stealth headless fetch**, and [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) **UC + CDP mode** when you need a real browser that doesn’t trip the easy checks. Pick one engine up front, or turn on **fallback** and let it step up from fast HTTP → bypass → stealth → CDP automation.
 
-Use **fallback** when you do not: StealthPlex walks a chain (fast HTTP → bypass → stealth → browser) and returns one normalized `Response` with `.engine` and `.attempts` so you can see what finally worked.
+```python
+from StealthPlex import Fetch
 
-One import (`Fetch`), several strategies, zero wrapper lock-in.
+fetch = Fetch(engine="curl_cffi")          # TLS impersonation, HTTP/2/3
+fetch = Fetch(engine="cloudscraper")       # Cloudflare-aware session
+fetch = Fetch(engine="seleniumbase")       # UC + CDP (not plain Driver)
+fetch = Fetch(fallback=True)               # try the chain; get .engine + .attempts
+```
+
+Each `Fetch(engine=...)` handle is the **real upstream API** (types, autocomplete, docs)—not a dumbed-down wrapper. Good for scrapers, price monitors, research crawlers, and any job where you’re tired of rewriting the stack every time a site adds protection.
+
+**Fallback order (default):** wreq → curl_cffi → cloudscraper → scrapling → seleniumbase
 
 ## Install
 
@@ -20,7 +29,7 @@ uv sync
 uv sync --extra curl_cffi
 uv sync --extra wreq
 uv sync --extra cloudscraper
-uv sync --extra stealthplex
+uv sync --extra scrapling
 uv sync --extra seleniumbase
 
 # All engines
@@ -34,7 +43,7 @@ uv sync --extra all
 | [curl_cffi](https://github.com/lexiforest/curl_cffi) | `curl_cffi` | TLS/JA3 impersonation, HTTP/2/3 — sync + async |
 | [wreq](https://github.com/0x676e67/wreq-python) | `wreq` | Async HTTP + TLS fingerprint |
 | [cloudscraper](https://github.com/VeNoMouS/cloudscraper) | `cloudscraper` | Cloudflare bypass (Requests session) |
-| [Scrapling](https://github.com/D4Vinci/Scrapling) | `stealthplex` | Adaptive parsers, stealth fetch, spiders (planned) |
+| [Scrapling](https://github.com/D4Vinci/Scrapling) | `scrapling` | Adaptive parsers, stealth fetch, spiders (planned) |
 | [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) | `seleniumbase` | UC Mode + CDP Mode (stealth; not plain Driver) |
 
 Hover the `fetch` variable after `Fetch(engine="...")` for engine-specific docs and the upstream GitHub link.
@@ -171,16 +180,16 @@ uv run test_cloudscraper.py
 
 ---
 
-## stealthplex
+## scrapling
 
 Upstream: [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling)
 
 [Scrapling](https://github.com/D4Vinci/Scrapling) is an adaptive web scraping framework built for sites that change and defenses that escalate. Its parser relocates selectors when layouts shift. Its fetchers target anti-bot surfaces—including Cloudflare Turnstile—without bolting on a second stack. Its spider layer scales from one-off requests to concurrent, multi-session crawls with pause/resume and rotating proxies, still in a few lines of Python.
 
-In StealthPlex, Scrapling is the **stealth / crawl** tier (bound to engine identifier `"stealthplex"`): you keep its full API on `fetch` (fetchers, parsers, spiders) while lighter engines handle TLS-only or session-only work elsewhere in the same project.
+In StealthPlex, Scrapling is the **stealth / crawl** tier (bound to engine identifier `"scrapling"`): you keep its full API on `fetch` (fetchers, parsers, spiders) while lighter engines handle TLS-only or session-only work elsewhere in the same project.
 
 ```bash
-uv sync --extra stealthplex
+uv sync --extra scrapling
 ```
 
 > [!NOTE]
@@ -191,7 +200,7 @@ uv sync --extra stealthplex
 import asyncio
 from StealthPlex import Fetch
 
-fetch = Fetch(engine="stealthplex")
+fetch = Fetch(engine="scrapling")
 
 # 1. 100% Stealth Fetch (Sync)
 # Bypass Cloudflare Turnstile, prevent WebRTC/DNS leaks, and randomize fingerprints
@@ -278,7 +287,7 @@ spider.start()
 Also on `fetch`: `Fetcher`, `StealthyFetcher`, `DynamicFetcher`, `AsyncFetcher`, `Selector`, `spiders`, `fetchers`, `parser`, `FetcherSession`, `StealthySession`, `DynamicSession`, `AsyncStealthySession`, `AsyncDynamicSession`.
 
 ```bash
-uv run test_stealthplex.py
+uv run test_scrapling.py
 ```
 
 ---
@@ -403,7 +412,7 @@ uv run test_seleniumbase.py
 
 ## Multi-engine fallback (optional)
 
-Returns a StealthPlex `Response` (not the upstream library type). Tries engines in order: wreq → curl_cffi → cloudscraper → stealthplex → seleniumbase.
+Returns a StealthPlex `Response` (not the upstream library type). Tries engines in order: wreq → curl_cffi → cloudscraper → scrapling → seleniumbase.
 
 ```python
 from StealthPlex import Fetch
@@ -422,7 +431,7 @@ print(r.engine, r.attempts, r.status_code)
 | Full [curl_cffi](https://github.com/lexiforest/curl_cffi) API (sync + async) | `Fetch(engine="curl_cffi")` |
 | Full [wreq](https://github.com/0x676e67/wreq-python) API (async + blocking) | `Fetch(engine="wreq")` |
 | Full [cloudscraper](https://github.com/VeNoMouS/cloudscraper) API | `Fetch(engine="cloudscraper")` |
-| Adaptive fetch + crawl ([Scrapling](https://github.com/D4Vinci/Scrapling)) | `Fetch(engine="stealthplex")` |
+| Adaptive fetch + crawl ([Scrapling](https://github.com/D4Vinci/Scrapling)) | `Fetch(engine="scrapling")` |
 | Full [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) API | `Fetch(engine="seleniumbase")` |
 | Try next engine when blocked | `Fetch(fallback=True)` |
-| Shortcuts | `curl_fetch()`, `wreq_fetch()`, `cloudscraper_fetch()`, `seleniumbase_fetch()`, `stealthplex_fetch()` |
+| Shortcuts | `curl_fetch()`, `wreq_fetch()`, `cloudscraper_fetch()`, `seleniumbase_fetch()`, `scrapling_fetch()` |
