@@ -29,6 +29,7 @@ class Engine(Protocol):
         data: Any = None,
         json: Any = None,
         timeout: float | None = None,
+        **kwargs: Any,
     ) -> Response:
         """Perform HTTP request; returns StealthPlex Response."""
         ...

@@ -132,6 +132,9 @@ class ScraplingEngine:
             target = urlunparse(parsed._replace(query=new_query))
 
         fetch_kwargs: dict[str, Any] = dict(kwargs)
+        fetch_kwargs.pop("allow_redirects", None)
+        fetch_kwargs.pop("redirect", None)
+        fetch_kwargs.pop("stream", None)
         if headers is not None:
             fetch_kwargs["extra_headers"] = headers
         if cookies is not None:

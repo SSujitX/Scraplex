@@ -56,7 +56,13 @@ class SeleniumBaseEngine:
         del headers, cookies, data, json  # CDP path does not apply HTTP client kwargs
         if method.upper() not in ("GET", "HEAD"):
             raise NotImplementedError("seleniumbase fallback supports GET/HEAD only")
-        sb_kwargs = {**self._kwargs, **kwargs}
+        
+        clean_kwargs = dict(kwargs)
+        clean_kwargs.pop("allow_redirects", None)
+        clean_kwargs.pop("redirect", None)
+        clean_kwargs.pop("stream", None)
+
+        sb_kwargs = {**self._kwargs, **clean_kwargs}
         target = url
         if params:
             from urllib.parse import urlencode, urlparse, urlunparse
