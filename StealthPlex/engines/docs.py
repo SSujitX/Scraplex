@@ -70,7 +70,7 @@ ENGINE_INFO: dict[EngineId, EngineInfo] = {
         summary="UC Mode + CDP Mode browser automation for hard targets (Layer 4).",
         handle="``with fetch.SB(uc=True) as sb: sb.activate_cdp_mode(url)`` then ``sb.cdp.*`` / ``sb.solve_captcha()``.",
         examples="""    fetch = Fetch(engine="seleniumbase")
-    with fetch.SB(uc=True, test=True) as sb:
+    with fetch.SB(uc=True) as sb:
         sb.activate_cdp_mode("https://example.com")
         sb.solve_captcha()
         print(sb.get_page_title())
