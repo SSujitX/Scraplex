@@ -2,7 +2,7 @@
 
 import asyncio
 
-from Scraplex import Fetch
+from StealthPlex import Fetch
 
 
 async def main() -> None:
