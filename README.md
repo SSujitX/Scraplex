@@ -35,7 +35,7 @@ uv sync --extra all
 | [wreq](https://github.com/0x676e67/wreq-python) | `wreq` | Async HTTP + TLS fingerprint |
 | [cloudscraper](https://github.com/VeNoMouS/cloudscraper) | `cloudscraper` | Cloudflare bypass (Requests session) |
 | [Scrapling](https://github.com/D4Vinci/Scrapling) | `scrapling` | Adaptive parsers, stealth fetch, spiders (planned) |
-| [seleniumbase](https://github.com/seleniumbase/SeleniumBase) | `seleniumbase` | Browser automation (planned) |
+| [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) | `seleniumbase` | UC Mode + CDP Mode (stealth; not plain Driver) |
 
 Hover the `fetch` variable after `Fetch(engine="...")` for engine-specific docs and the upstream GitHub link.
 
@@ -171,7 +171,7 @@ uv run test_cloudscraper.py
 
 ---
 
-## scrapling *(coming soon)*
+## scrapling
 
 Upstream: [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling)
 
@@ -180,35 +180,224 @@ Upstream: [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling)
 In Scraplex, Scrapling is the **stealth / crawl** tier: you keep its full API on `fetch` (fetchers, parsers, spiders) while lighter engines handle TLS-only or session-only work elsewhere in the same project.
 
 ```bash
-uv sync --extra scrapling   # when the engine is wired in
+uv sync --extra scrapling
 ```
 
+> [!NOTE]
+> Browser binaries and setup are automatically configured on first run if missing.
+
+
 ```python
+import asyncio
 from Scraplex import Fetch
 
 fetch = Fetch(engine="scrapling")
 
-# Single stealth fetch (headless or dynamic)
-page = fetch.fetcher.fetch("https://example.com", headless=True)
+# 1. 100% Stealth Fetch (Sync)
+# Bypass Cloudflare Turnstile, prevent WebRTC/DNS leaks, and randomize fingerprints
+resp = fetch.StealthyFetcher.fetch(
+    "https://nowsecure.nl",  # Cloudflare-protected target
+    solve_cloudflare=True,   # Solve Turnstile/Interstitial challenges automatically
+    block_webrtc=True,       # Prevent local/real IP leaks via WebRTC when using proxies
+    hide_canvas=True,        # Add random noise to canvas operations to avoid fingerprinting
+    dns_over_https=True,     # Route DNS queries via DoH to prevent DNS leaks
+    block_ads=True,          # Block tracking script requests to speed up loading
+    google_search=True,      # Spoof a Google search referer header (default is True)
+    headless=True,           # Run in stealthy headless chromium mode
+    proxy="http://username:password@host:port"  # Proxy setting (optional)
+)
+print(f"Status: {resp.status}")
+print(f"IP: {resp.xpath('//body').get()[:200]}")  # Uses Scrapling's Selector engine automatically
 
-# Scale up: parsers, spiders, sessions — same fetch handle, upstream Scrapling API
-# spider = fetch.Spider(...)
-# spider.crawl(...)
+
+# 2. 100% Stealth Fetch (Async)
+async def stealth_fetch_async():
+    resp = await fetch.StealthyFetcher.async_fetch(
+        "https://nowsecure.nl",
+        solve_cloudflare=True,
+        block_webrtc=True,
+        hide_canvas=True,
+        dns_over_https=True,
+        headless=True,
+        proxy="http://username:password@host:port"
+    )
+    print(f"Async Status: {resp.status}")
+
+asyncio.run(stealth_fetch_async())
+
+
+# 3. Persistent Stealth Session (Sync)
+# Reuse browser context, cookies, and fingerprint headers across multiple requests
+with fetch.StealthySession(
+    solve_cloudflare=True,
+    block_webrtc=True,
+    hide_canvas=True,
+    dns_over_https=True,
+    proxy="http://username:password@host:port"
+) as session:
+    # First request solves Cloudflare and saves cookies
+    resp1 = session.get("https://nowsecure.nl")
+    print(f"Session Page 1: {resp1.status}")
+    
+    # Second request reuses the authenticated session context
+    resp2 = session.get("https://nowsecure.nl/another-page")
+    print(f"Session Page 2: {resp2.status}")
+
+
+# 4. Persistent Stealth Session (Async)
+async def session_crawl_async():
+    async with fetch.AsyncStealthySession(
+        solve_cloudflare=True,
+        block_webrtc=True,
+        hide_canvas=True,
+        dns_over_https=True,
+        proxy="http://username:password@host:port"
+    ) as session:
+        resp1 = await session.get("https://nowsecure.nl")
+        print(f"Async Session Page 1: {resp1.status}")
+        
+        resp2 = await session.get("https://nowsecure.nl/another-page")
+        print(f"Async Session Page 2: {resp2.status}")
+
+asyncio.run(session_crawl_async())
+
+
+# 5. Spiders Crawling Framework
+# Scale to large concurrent spider jobs with spider architecture
+class StealthSpider(fetch.spiders.Spider):
+    name = "stealth_spider"
+    start_urls = ["https://httpbin.org/html"]
+
+    def parse(self, response):
+        print(response.xpath("//h1/text()").get())
+
+spider = StealthSpider()
+spider.start()
+```
+
+Also on `fetch`: `Fetcher`, `StealthyFetcher`, `DynamicFetcher`, `AsyncFetcher`, `Selector`, `spiders`, `fetchers`, `parser`, `FetcherSession`, `StealthySession`, `DynamicSession`, `AsyncStealthySession`, `AsyncDynamicSession`.
+
+```bash
+uv run test_scrapling.py
 ```
 
 ---
 
-## seleniumbase *(coming soon)*
+## seleniumbase
 
-Upstream: [seleniumbase/SeleniumBase](https://github.com/seleniumbase/SeleniumBase)
+Upstream: [seleniumbase/SeleniumBase](https://github.com/seleniumbase/SeleniumBase) · CDP docs: [examples/cdp_mode](https://github.com/seleniumbase/SeleniumBase/blob/master/examples/cdp_mode/ReadMe.md)
 
-SeleniumBase is the **hard-target / full browser** tier: real browser sessions for CAPTCHAs, heavy JavaScript, and flows the HTTP engines cannot drive. Scraplex exposes `fetch.sb` and the rest of the SeleniumBase API when this engine is enabled.
+```bash
+uv sync --extra seleniumbase
+```
+
+[SeleniumBase](https://github.com/seleniumbase/SeleniumBase) is the **hard-target / full browser** tier. For anti-bot sites, use **UC Mode + CDP Mode** — not a plain `Driver()` session. `activate_cdp_mode()` disconnects WebDriver and routes actions through the Chrome DevTools Protocol (`sb.cdp.*`), which is what bypasses Cloudflare, CAPTCHAs, and similar protections.
+
+Scraplex exposes the full package on `fetch`: `SB`, `sb_cdp`, `cdp_driver`, `BaseCase`, and the rest of `import seleniumbase`.
+
+### UC Mode + CDP Mode (With CDP)
+
+This is the standard stealth context manager flow (With CDP). `activate_cdp_mode()` disconnects WebDriver and routes actions through the Chrome DevTools Protocol (`sb.cdp.*`), allowing you to bypass Cloudflare Turnstile, CAPTCHAs, etc.
 
 ```python
+from Scraplex import Fetch
+
 fetch = Fetch(engine="seleniumbase")
-with fetch.sb as sb:
-    sb.open("https://example.com")
+
+with fetch.SB(uc=True, test=True) as sb:
+    # Navigate to a Cloudflare Turnstile protected page
+    url = "https://seleniumbase.io/apps/turnstile"
+    sb.activate_cdp_mode(url)
+    sb.sleep(2.0)
+
+    # Solve the challenge using CDP mode
+    sb.solve_captcha()
+    sb.sleep(2.0)
+
+    # Interact with stealthy CDP methods on sb.cdp
+    if sb.cdp.is_element_visible("img#captcha-success"):
+        print("Success! Bypassed Cloudflare with context manager.")
 ```
+
+Common CDP calls on the session (after `activate_cdp_mode`):
+
+```python
+sb.cdp.click(selector)
+sb.cdp.click_if_visible(selector)
+sb.cdp.solve_captcha()
+sb.cdp.type(selector, text)
+sb.cdp.gui_click_element(selector)   # PyAutoGUI when CDP is not enough
+sb.get_page_source()                 # works while WebDriver is disconnected
+sb.reconnect()                       # back to WebDriver (may be detectable)
+sb.is_connected()
+```
+
+### Pure CDP Mode (Raw CDP Sync)
+
+Uses a pure Chrome DevTools Protocol session directly without any WebDriver overhead or process initialization wrapper.
+
+```python
+from Scraplex import Fetch
+
+fetch = Fetch(engine="seleniumbase")
+
+# Initialize sync browser in Pure CDP mode (no WebDriver)
+sb = fetch.sb_cdp.Chrome("https://seleniumbase.io/apps/turnstile")
+try:
+    sb.sleep(2.0)
+
+    # Solve the Turnstile challenge
+    sb.solve_captcha()
+    sb.sleep(2.0)
+
+    if sb.is_element_visible("img#captcha-success"):
+        print("Success! Bypassed Cloudflare in Raw CDP Sync mode.")
+finally:
+    # Always stop the driver to clean up the browser process
+    sb.driver.stop()
+```
+
+### Async Pure CDP Mode (Raw CDP Async)
+
+You can also run Pure CDP mode asynchronously using `cdp_driver.start_async()`.
+
+```python
+import asyncio
+from Scraplex import Fetch
+
+async def main():
+    fetch = Fetch(engine="seleniumbase")
+
+    # Start the async CDP driver
+    driver = await fetch.cdp_driver.start_async(headless=False)
+    try:
+        tab = driver.page
+        await tab.get("https://seleniumbase.io/apps/turnstile")
+        await tab.sleep(2.0)
+
+        # Solve Cloudflare Turnstile asynchronously
+        await tab.solve_captcha()
+        await tab.sleep(2.0)
+
+        if await tab.is_element_visible("img#captcha-success"):
+            print("Success! Bypassed Cloudflare in Raw CDP Async mode.")
+    finally:
+        # Stop the driver (synchronous method)
+        driver.stop()
+
+asyncio.run(main())
+```
+
+### What not to use for protected sites
+
+Plain `fetch.Driver()` / `driver.get()` is standard Selenium WebDriver — fine for normal sites, **not** the stealth/CDP path SeleniumBase documents for anti-bot bypass. Prefer `SB(uc=True)` + `activate_cdp_mode()`.
+
+Also on `fetch`: `cdp_driver` (async CDP), `decorators`, `page_actions`, `fixtures`, `BaseCase`, and everything in `seleniumbase`.
+
+```bash
+uv run test_seleniumbase.py
+```
+
 
 ---
 
@@ -233,7 +422,7 @@ print(r.engine, r.attempts, r.status_code)
 | Full [curl_cffi](https://github.com/lexiforest/curl_cffi) API (sync + async) | `Fetch(engine="curl_cffi")` |
 | Full [wreq](https://github.com/0x676e67/wreq-python) API (async + blocking) | `Fetch(engine="wreq")` |
 | Full [cloudscraper](https://github.com/VeNoMouS/cloudscraper) API | `Fetch(engine="cloudscraper")` |
-| Adaptive fetch + crawl ([Scrapling](https://github.com/D4Vinci/Scrapling)) | `Fetch(engine="scrapling")` *(planned)* |
-| Browser automation ([SeleniumBase](https://github.com/seleniumbase/SeleniumBase)) | `Fetch(engine="seleniumbase")` *(planned)* |
+| Adaptive fetch + crawl ([Scrapling](https://github.com/D4Vinci/Scrapling)) | `Fetch(engine="scrapling")` |
+| Full [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) API | `Fetch(engine="seleniumbase")` |
 | Try next engine when blocked | `Fetch(fallback=True)` |
-| Shortcuts | `curl_fetch()`, `wreq_fetch()`, `cloudscraper_fetch()` |
+| Shortcuts | `curl_fetch()`, `wreq_fetch()`, `cloudscraper_fetch()`, `seleniumbase_fetch()` |
