@@ -1,9 +1,37 @@
 [project]
 name = "StealthPlex"
-version = "0.0.1"
-description = "StealthPlex is a multi-engine stealth fetch layer for Python scraping—anti-bot bypass from TLS fingerprinting to CDP browsers, with optional auto-escalation."
+version = "0.0.2"
+description = "Multi-engine stealth fetch layer for Python scraping—anti-bot bypass from TLS fingerprinting to CDP browsers, with optional auto-escalation."
+readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+license = "MIT"
+authors = [{ name = "SSujitX" }]
+keywords = [
+    "stealth",
+    "scraping",
+    "anti-bot",
+    "cloudflare",
+    "http-client",
+    "curl-cffi",
+    "wreq",
+    "cloudscraper",
+    "scrapling",
+    "seleniumbase",
+    "tls-fingerprint",
+    "bot-detection",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 [project.optional-dependencies]
 wreq = ["wreq"]
@@ -12,6 +40,13 @@ cloudscraper = ["cloudscraper"]
 scrapling = ["scrapling[fetchers]"]
 seleniumbase = ["seleniumbase"]
 all = ["wreq", "curl-cffi", "cloudscraper", "scrapling[fetchers]", "seleniumbase"]
+
+[project.urls]
+Homepage = "https://github.com/SSujitX/StealthPlex"
+Repository = "https://github.com/SSujitX/StealthPlex"
+Documentation = "https://github.com/SSujitX/StealthPlex#readme"
+Issues = "https://github.com/SSujitX/StealthPlex/issues"
+Changelog = "https://github.com/SSujitX/StealthPlex/releases"
 
 [build-system]
 requires = ["hatchling"]
