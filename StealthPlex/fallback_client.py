@@ -17,8 +17,8 @@ class FallbackClient:
     """Stealth multi-engine fallback — the default mode of StealthPlex.
 
     Each engine uses its **own** built-in stealth:
-      - wreq: Rust-level TLS/HTTP2 Chrome emulation
       - curl_cffi: libcurl JA3/JA4 Chrome impersonation
+      - wreq: Rust-level TLS/HTTP2 Chrome emulation
       - cloudscraper: Cloudflare JS challenge solver
       - scrapling: Playwright-based stealth browser (headed/Xvfb)
       - seleniumbase: Undetected ChromeDriver + CDP mode (headed/Xvfb)
