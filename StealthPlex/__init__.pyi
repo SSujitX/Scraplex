@@ -17,8 +17,6 @@ from StealthPlex.fallback_client import FallbackClient
 from StealthPlex.response import Response
 from StealthPlex.types import DEFAULT_FALLBACK, EngineId
 
-__version__: str
-
 __all__ = [
     "DEFAULT_FALLBACK",
     "CloudscraperProxy",

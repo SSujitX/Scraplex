@@ -67,5 +67,3 @@ __all__ = [
     "curl_fetch",
     "wreq_fetch",
 ]
-
-__version__ = "0.1.0"
