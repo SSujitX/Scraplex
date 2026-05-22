@@ -486,7 +486,7 @@ class SeleniumBaseProxy:
     **Not** plain ``Driver()`` for anti-bot work. Use UC+CDP:
 
         fetch = Fetch(engine="seleniumbase")
-        with fetch.SB(uc=True, test=True) as sb:
+        with fetch.SB(uc=True) as sb:
             sb.activate_cdp_mode("https://example.com")
             sb.solve_captcha()
             html = sb.get_page_source()
