@@ -115,9 +115,11 @@ class ScraplingEngine:
         timeout: float | None = None,
         **kwargs: Any,
     ) -> Response:
-        """Perform HTTP request via scrapling.StealthyFetcher."""
+        """Fetch URL via StealthyFetcher; browser-based — GET only."""
         if method.upper() not in ("GET", "HEAD"):
-            raise NotImplementedError("scrapling fallback engine supports GET/HEAD requests only")
+            raise NotImplementedError(
+                f"scrapling is browser-based; {method.upper()} not supported"
+            )
 
         _ensure_dependencies()
         stealthy_fetcher = _import_stealthy_fetcher()
@@ -144,5 +146,7 @@ class ScraplingEngine:
         if timeout is not None:
             fetch_kwargs["timeout"] = int(timeout * 1000)
 
+        fetch_kwargs.setdefault("headless", True)
+        fetch_kwargs.setdefault("block_images", True)
         upstream = stealthy_fetcher.fetch(target, **fetch_kwargs)
         return response_from_scrapling(upstream, attempts=(self.id,))

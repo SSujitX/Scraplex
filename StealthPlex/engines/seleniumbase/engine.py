@@ -7,32 +7,35 @@ from StealthPlex.types import EngineId
 
 
 def _sb_factory() -> Any:
+    """Import seleniumbase SB; raises ImportError when extra is missing."""
     from seleniumbase import SB
 
     return SB
 
 
 def _normalize_cookies(driver: Any) -> dict[str, str]:
+    """Extract cookie name/value pairs from seleniumbase driver."""
     if driver is None:
         return {}
     try:
         return {str(c["name"]): str(c["value"]) for c in driver.get_cookies()}
     except (AttributeError, KeyError, TypeError):
         return {}
-    return {}
 
 
 class SeleniumBaseEngine:
-    """seleniumbase engine adapter; UC+CDP via SB.activate_cdp_mode for fallback chain."""
+    """seleniumbase engine adapter; UC+CDP for StealthPlex fallback chain."""
 
     def __init__(self) -> None:
         self._kwargs: dict[str, Any] = {"uc": True, "headless": True, "test": True}
 
     @property
     def id(self) -> EngineId:
+        """Return engine identifier seleniumbase."""
         return "seleniumbase"
 
     def installed(self) -> bool:
+        """Return True when seleniumbase package is installed."""
         try:
             _sb_factory()
         except ImportError:
@@ -52,17 +55,21 @@ class SeleniumBaseEngine:
         timeout: float | None = None,
         **kwargs: Any,
     ) -> Response:
-        """Fetch URL via UC+CDP (activate_cdp_mode); returns page HTML as StealthPlex Response."""
-        del headers, cookies, data, json  # CDP path does not apply HTTP client kwargs
+        """Fetch URL via UC+CDP; browser-based — GET only, skipped for other methods."""
         if method.upper() not in ("GET", "HEAD"):
-            raise NotImplementedError("seleniumbase fallback supports GET/HEAD only")
-        
+            raise NotImplementedError(
+                f"seleniumbase is browser-based; {method.upper()} not supported"
+            )
+
+        # Clean kwargs that browsers don't understand
         clean_kwargs = dict(kwargs)
         clean_kwargs.pop("allow_redirects", None)
         clean_kwargs.pop("redirect", None)
         clean_kwargs.pop("stream", None)
 
         sb_kwargs = {**self._kwargs, **clean_kwargs}
+
+        # Append params to URL
         target = url
         if params:
             from urllib.parse import urlencode, urlparse, urlunparse
@@ -74,11 +81,24 @@ class SeleniumBaseEngine:
             target = urlunparse(parsed._replace(query=new_query))
 
         with _sb_factory()(**sb_kwargs) as sb:
+            # Inject cookies before navigating
+            if cookies:
+                from urllib.parse import urlparse
+
+                domain = urlparse(target).hostname or ""
+                sb.open("about:blank")
+                for name, value in cookies.items():
+                    sb.add_cookie({"name": name, "value": value, "domain": domain})
+
+            # Navigate with CDP mode (undetected)
             sb.activate_cdp_mode(target)
+
+            # Wait for page to load and JS challenges to resolve
             if timeout is not None:
                 sb.sleep(min(timeout, 30.0))
             else:
-                sb.sleep(1.0)
+                sb.sleep(2.0)
+
             text = sb.get_page_source()
             final_url = sb.get_current_url()
             cookie_jar = _normalize_cookies(getattr(sb, "driver", None))
