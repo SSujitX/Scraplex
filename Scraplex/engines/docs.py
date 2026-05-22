@@ -67,11 +67,17 @@ ENGINE_INFO: dict[EngineId, EngineInfo] = {
         title="seleniumbase",
         github="https://github.com/seleniumbase/SeleniumBase",
         extra="seleniumbase",
-        summary="Browser automation for hard targets (Layer 4).",
-        handle="``with fetch.sb as sb: sb.open(url)`` context manager.",
+        summary="UC Mode + CDP Mode browser automation for hard targets (Layer 4).",
+        handle="``with fetch.SB(uc=True) as sb: sb.activate_cdp_mode(url)`` then ``sb.cdp.*`` / ``sb.solve_captcha()``.",
         examples="""    fetch = Fetch(engine="seleniumbase")
-    with fetch.sb as sb:
-        sb.open("https://example.com")""",
+    with fetch.SB(uc=True, test=True) as sb:
+        sb.activate_cdp_mode("https://example.com")
+        sb.solve_captcha()
+        print(sb.get_page_title())
+        sb.cdp.click_if_visible("button#submit")
+    sb = fetch.sb_cdp.Chrome("https://example.com")
+    sb.solve_captcha()
+    sb.driver.stop()""",
     ),
 }
 
