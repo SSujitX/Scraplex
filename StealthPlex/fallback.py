@@ -3,7 +3,16 @@ from __future__ import annotations
 from StealthPlex.response import Response
 from StealthPlex.types import DEFAULT_FALLBACK, EngineId
 
-_BLOCKED = frozenset({403, 429, 503})
+_BLOCKED = frozenset({307, 401, 403, 429, 503})
+
+_BLOCKED_BODY = (
+    "cloudflare",
+    "cf-browser-verification",
+    "challenge",
+    "access denied",
+    "sign in",
+    "sign_in",
+)
 
 
 def should_escalate(response: Response) -> bool:
@@ -11,7 +20,10 @@ def should_escalate(response: Response) -> bool:
     if response.status_code in _BLOCKED:
         return True
     body = response.text.lower()
-    return any(m in body for m in ("cloudflare", "cf-browser-verification", "challenge"))
+    url = response.url.lower()
+    if any(p in url for p in ("/sign_in", "/login", "error_code=403")):
+        return True
+    return any(m in body for m in _BLOCKED_BODY)
 
 
 def resolve_fallback_chain(
