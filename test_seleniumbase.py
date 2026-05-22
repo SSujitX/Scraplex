@@ -1,7 +1,7 @@
 """Run: uv sync --extra seleniumbase && uv run test_seleniumbase.py"""
 
 import asyncio
-from Scraplex import Fetch
+from StealthPlex import Fetch
 
 
 def test_with_cdp() -> None:
