@@ -57,6 +57,7 @@ resp = fetch.get(url)                  # Scraplex.response.Response
 | curl_cffi 1:1 + IDE hints | `Fetch(engine="curl_cffi")` — full package via `__getattr__` |
 | wreq 1:1 + IDE hints | `Fetch(engine="wreq")` |
 | cloudscraper 1:1 + IDE hints | `Fetch(engine="cloudscraper")` |
+| seleniumbase 1:1 + IDE hints | `Fetch(engine="seleniumbase")` |
 | Try next engine when blocked | `Fetch(fallback=True)` → Scraplex `Response` |
 
 ## Engine handles
@@ -67,7 +68,7 @@ resp = fetch.get(url)                  # Scraplex.response.Response
 | curl_cffi | module proxy | `fetch.get`, `fetch.aio.get`, `fetch.Session`, `fetch.AsyncSession` |
 | cloudscraper | module proxy | `fetch.create_scraper().get(...)`, `fetch.get_tokens(url)` |
 | scrapling | `.fetcher` | `fetch.fetcher.fetch(..., headless=)` |
-| seleniumbase | `.sb` | `with fetch.sb as sb: sb.open(...)` |
+| seleniumbase | module proxy | `with fetch.SB(uc=True) as sb: sb.activate_cdp_mode(url)`, `sb.cdp.*`, `fetch.sb_cdp` |
 
 - IDE: per-engine `proxy.pyi`; runtime `apply_fetch_doc()` for hover on assigned `fetch`
 - `Fetch(engine=...)` and `Fetch(fallback=...)` mutually exclusive
@@ -85,6 +86,7 @@ Scraplex/                         # repo root
       curl_cffi/                  # proxy.py, proxy.pyi, engine.py, _docs.py
       wreq/
       cloudscraper/
+      seleniumbase/
   test_curl_cffi.py
   test_wreq.py
 ```
@@ -115,5 +117,6 @@ Scraplex/                         # repo root
 uv sync --extra curl_cffi && uv run test_curl_cffi.py
 uv sync --extra wreq && uv run test_wreq.py
 uv sync --extra cloudscraper && uv run test_cloudscraper.py
+uv sync --extra seleniumbase && uv run test_seleniumbase.py
 uv lock --upgrade
 ```
