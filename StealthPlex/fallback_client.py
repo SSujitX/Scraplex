@@ -37,13 +37,200 @@ class FallbackClient:
         self._fallback_use_default = fallback is True
         self._fallback_explicit = fallback if isinstance(fallback, list) else None
 
-    def get(self, url: str, **kwargs: Any) -> Response:
-        """HTTP GET with fallback chain; url target, kwargs forwarded to engines."""
-        return self.request("GET", url, **kwargs)
+    def get(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        stream: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP GET with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "GET",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            stream=stream,
+            **kwargs,
+        )
 
-    def post(self, url: str, **kwargs: Any) -> Response:
-        """HTTP POST with fallback chain; url target, kwargs forwarded to engines."""
-        return self.request("POST", url, **kwargs)
+    def post(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        data: Any = None,
+        json: Any = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        stream: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP POST with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "POST",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            data=data,
+            json=json,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            stream=stream,
+            **kwargs,
+        )
+
+    def put(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        data: Any = None,
+        json: Any = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        stream: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP PUT with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "PUT",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            data=data,
+            json=json,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            stream=stream,
+            **kwargs,
+        )
+
+    def delete(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP DELETE with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "DELETE",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            **kwargs,
+        )
+
+    def head(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP HEAD with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "HEAD",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            **kwargs,
+        )
+
+    def options(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP OPTIONS with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "OPTIONS",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            **kwargs,
+        )
+
+    def patch(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        data: Any = None,
+        json: Any = None,
+        timeout: float | None = None,
+        allow_redirects: bool | None = None,
+        redirect: bool | None = None,
+        stream: bool | None = None,
+        **kwargs: Any,
+    ) -> Response:
+        """HTTP PATCH with fallback chain; returns StealthPlex Response."""
+        return self.request(
+            "PATCH",
+            url,
+            headers=headers,
+            cookies=cookies,
+            params=params,
+            data=data,
+            json=json,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            redirect=redirect,
+            stream=stream,
+            **kwargs,
+        )
 
     def request(self, method: str, url: str, **kwargs: Any) -> Response:
         """HTTP request with fallback chain; returns StealthPlex Response."""
@@ -52,6 +239,13 @@ class FallbackClient:
         data = kwargs.pop("data", None)
         json_body = kwargs.pop("json", None)
         timeout = kwargs.pop("timeout", None)
+        cookies = kwargs.pop("cookies", None)
+
+        allow_redirects = kwargs.pop("allow_redirects", None)
+        if allow_redirects is None:
+            allow_redirects = kwargs.pop("redirect", None)
+
+        stream = kwargs.pop("stream", None)
 
         chain = resolve_fallback_chain(
             use_default=self._fallback_use_default,
@@ -62,22 +256,34 @@ class FallbackClient:
             raise EngineUnavailable("any", "no engines installed; see README.md")
 
         merged_headers = self._state.merge_headers(headers)
+        
+        merged_cookies = dict(self._state.cookies)
+        if cookies:
+            merged_cookies.update(cookies)
+
         attempts: list[str] = []
         last_response: Response | None = None
 
         for engine_id in chain:
             attempts.append(engine_id)
             engine = create_engine(engine_id)
+            
+            engine_kwargs = dict(kwargs)
+            if allow_redirects is not None:
+                engine_kwargs["allow_redirects"] = allow_redirects
+            if stream is not None:
+                engine_kwargs["stream"] = stream
+
             response = engine.request(
                 method,
                 url,
                 headers=merged_headers,
-                cookies=dict(self._state.cookies),
+                cookies=merged_cookies,
                 params=params,
                 data=data,
                 json=json_body,
                 timeout=timeout,
-                **kwargs,
+                **engine_kwargs,
             )
             self._state.cookies.update(response.cookies)
             last_response = Response(
