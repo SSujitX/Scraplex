@@ -1,6 +1,6 @@
 """Run: uv sync --extra cloudscraper && uv run test_cloudscraper.py"""
 
-from Scraplex import Fetch
+from StealthPlex import Fetch
 
 
 def main() -> None:
