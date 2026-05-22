@@ -14,53 +14,52 @@ from StealthPlex.types import EngineId
 
 
 @overload
-def Fetch(*, engine: Literal["curl_cffi"], fallback: None = None) -> CurlCffiProxy: ...
+def Fetch(*, engine: Literal["curl_cffi"]) -> CurlCffiProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["wreq"], fallback: None = None) -> WreqProxy: ...
+def Fetch(*, engine: Literal["wreq"]) -> WreqProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["cloudscraper"], fallback: None = None) -> CloudscraperProxy: ...
+def Fetch(*, engine: Literal["cloudscraper"]) -> CloudscraperProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["seleniumbase"], fallback: None = None) -> SeleniumBaseProxy: ...
+def Fetch(*, engine: Literal["seleniumbase"]) -> SeleniumBaseProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["scrapling"], fallback: None = None) -> ScraplingProxy: ...
+def Fetch(*, engine: Literal["scrapling"]) -> ScraplingProxy: ...
 
 
 @overload
 def Fetch(
     *,
     engine: None = None,
-    fallback: bool | list[EngineId],
+    fallback: list[EngineId] | None = None,
 ) -> FallbackClient: ...
 
 
 def Fetch(
     *,
     engine: EngineId | None = None,
-    fallback: bool | list[EngineId] | None = None,
+    fallback: list[EngineId] | None = None,
 ) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | SeleniumBaseProxy | ScraplingProxy | FallbackClient | Any:
-    """Create a fetch handle bound to one engine or a multi-engine fallback chain.
+    """Create a stealth fetch handle.
 
-    Pass ``engine=`` **or** ``fallback=``, not both.
+    - ``Fetch()`` — auto-stealth fallback chain (wreq → curl_cffi →
+      cloudscraper → scrapling → seleniumbase). Tries each engine
+      serially until one bypasses. Returns StealthPlex ``Response``.
+    - ``Fetch(engine="curl_cffi")`` — bind one upstream library's full API.
+    - ``Fetch(fallback=["wreq", "curl_cffi"])`` — custom engine order.
 
-    Args:
-        engine: Bind one upstream library (``"curl_cffi"``, ``"wreq"``, ...).
-            Returns that library's API — hover the return value for engine docs.
-        fallback: Multi-engine chain. ``True`` = default order; or a list of engine ids.
-            Returns StealthPlex ``Response`` with ``.attempts``.
+    ``engine=`` and ``fallback=`` are mutually exclusive.
     """
     if engine is not None and fallback is not None:
         raise FetchConfigError("pass engine= or fallback=, not both")
-    if engine is None and fallback is None:
-        raise FetchConfigError("pass engine= or fallback=")
 
+    # --- Bound engine mode ---
     if engine == "curl_cffi":
         proxy = CurlCffiProxy()
         apply_fetch_doc(proxy, engine)
@@ -99,4 +98,5 @@ def Fetch(
     if engine is not None:
         raise EngineNotImplemented(engine)
 
+    # --- Stealth fallback mode (default when no engine given) ---
     return FallbackClient(fallback=fallback)

@@ -10,46 +10,43 @@ from StealthPlex.types import EngineId
 
 
 @overload
-def Fetch(*, engine: Literal["curl_cffi"], fallback: None = None) -> CurlCffiProxy: ...
+def Fetch(*, engine: Literal["curl_cffi"]) -> CurlCffiProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["wreq"], fallback: None = None) -> WreqProxy: ...
+def Fetch(*, engine: Literal["wreq"]) -> WreqProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["cloudscraper"], fallback: None = None) -> CloudscraperProxy: ...
+def Fetch(*, engine: Literal["cloudscraper"]) -> CloudscraperProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["scrapling"], fallback: None = None) -> ScraplingProxy: ...
+def Fetch(*, engine: Literal["scrapling"]) -> ScraplingProxy: ...
 
 
 @overload
-def Fetch(*, engine: Literal["seleniumbase"], fallback: None = None) -> SeleniumBaseProxy: ...
+def Fetch(*, engine: Literal["seleniumbase"]) -> SeleniumBaseProxy: ...
 
 
 @overload
 def Fetch(
     *,
     engine: None = None,
-    fallback: bool | list[EngineId],
+    fallback: list[EngineId] | None = None,
 ) -> FallbackClient: ...
 
 
 def Fetch(
     *,
     engine: EngineId | None = None,
-    fallback: bool | list[EngineId] | None = None,
+    fallback: list[EngineId] | None = None,
 ) -> CurlCffiProxy | WreqProxy | CloudscraperProxy | ScraplingProxy | SeleniumBaseProxy | FallbackClient:
-    """Create a fetch handle bound to one engine or a multi-engine fallback chain.
+    """Create a stealth fetch handle.
 
-    Pass ``engine=`` **or** ``fallback=``, not both.
-
-    Args:
-        engine: Bind one upstream library (``"curl_cffi"``, ``"wreq"``, ...).
-            Hover the return value for engine docs and upstream GitHub link.
-        fallback: Multi-engine chain. ``True`` = default order; or explicit engine list.
-            Returns StealthPlex ``Response`` with ``.attempts``.
+    - ``Fetch()`` — auto-stealth fallback chain (wreq → curl_cffi →
+      cloudscraper → scrapling → seleniumbase). Returns StealthPlex ``Response``.
+    - ``Fetch(engine=...)`` — bind one upstream library's full API.
+    - ``Fetch(fallback=[...])`` — custom engine order.
     """
     ...
