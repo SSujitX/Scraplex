@@ -9,3 +9,4 @@ wheels/
 # Virtual environments
 .venv
 /downloaded_files
+usages.txt

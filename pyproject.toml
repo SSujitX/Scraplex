@@ -1,6 +1,6 @@
 [project]
 name = "StealthPlex"
-version = "0.1.0"
+version = "0.0.1"
 description = "StealthPlex is a multi-engine stealth fetch layer for Python scraping—anti-bot bypass from TLS fingerprinting to CDP browsers, with optional auto-escalation."
 requires-python = ">=3.11"
 dependencies = []
