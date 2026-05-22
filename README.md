@@ -50,23 +50,65 @@ Hover the `fetch` variable in your IDE (after assigning it via `Fetch()`) to vie
 
 ---
 
-## Quick Start Example
+## Quick Start
 
-You can bind directly to a single engine or use the multi-engine fallback client:
+You can bind directly to a specific engine to access its full upstream API, or use the multi-engine fallback client.
 
-### 1. Using a Single Engine (e.g. `curl_cffi` for fast TLS impersonation)
+### 1. Engine-Specific Examples
 
+#### wreq (TLS Impersonation - Async)
+```python
+import asyncio
+from StealthPlex import Fetch
+
+async def main():
+    fetch = Fetch(engine="wreq")
+    response = await fetch.get("https://example.com", emulation=fetch.Emulation.Firefox149)
+    print(await response.text())
+
+asyncio.run(main())
+```
+
+#### curl_cffi (TLS Impersonation - Sync/Async)
 ```python
 from StealthPlex import Fetch
 
-# Bound engine exposes its complete upstream API on the fetch handle
 fetch = Fetch(engine="curl_cffi")
-response = fetch.get("https://tls.browserleaks.com/json", impersonate="chrome124")
-print(response.status_code)
-print(response.json())
+response = fetch.get("https://example.com", impersonate="chrome124")
+print(response.text)
 ```
 
-### 2. Using Multi-Engine Fallback (Auto-escalation)
+#### cloudscraper (Cloudflare Session Bypass)
+```python
+from StealthPlex import Fetch
+
+fetch = Fetch(engine="cloudscraper")
+scraper = fetch.create_scraper(browser="chrome")
+response = scraper.get("https://example.com")
+print(response.text)
+```
+
+#### scrapling (Stealth Headless Fetch & Selector)
+```python
+from StealthPlex import Fetch
+
+fetch = Fetch(engine="scrapling")
+response = fetch.fetcher.fetch("https://example.com")
+print(response.text)
+```
+
+#### seleniumbase (Hard-Target Browser UC/CDP Automation)
+```python
+from StealthPlex import Fetch
+
+fetch = Fetch(engine="seleniumbase")
+with fetch.SB(uc=True) as sb:
+    sb.activate_cdp_mode("https://example.com")
+    sb.sleep(2.0)
+    print(sb.get_page_source())
+```
+
+### 2. Multi-Engine Fallback (Auto-escalation)
 
 ```python
 from StealthPlex import Fetch
