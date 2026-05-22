@@ -1,6 +1,6 @@
 [project]
 name = "StealthPlex"
-version = "0.0.2"
+version = "0.0.3"
 description = "Multi-engine stealth fetch layer for Python scraping—anti-bot bypass from TLS fingerprinting to CDP browsers, with optional auto-escalation."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -54,6 +54,3 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["StealthPlex"]
-
-[tool.hatch.build]
-include = ["StealthPlex/py.typed", "StealthPlex/**/*.pyi"]
