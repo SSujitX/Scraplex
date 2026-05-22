@@ -8,7 +8,7 @@ def test_with_cdp() -> None:
     """Verify using with fetch.SB(...) context manager + activate_cdp_mode()."""
     fetch = Fetch(engine="seleniumbase")
 
-    with fetch.SB(uc=True, test=True) as sb:
+    with fetch.SB(uc=True) as sb:
         url = "https://seleniumbase.io/demo_page"
         sb.activate_cdp_mode(url)
         sb.sleep(1.0)
@@ -46,7 +46,7 @@ def test_cloudflare_bypass_with_cdp() -> None:
     """Verify bypassing Cloudflare Turnstile using With CDP mode."""
     fetch = Fetch(engine="seleniumbase")
 
-    with fetch.SB(uc=True, test=True) as sb:
+    with fetch.SB(uc=True) as sb:
         url = "https://seleniumbase.io/apps/turnstile"
         sb.activate_cdp_mode(url)
         sb.sleep(2.0)
