@@ -5,6 +5,8 @@ from collections.abc import Callable
 from Scraplex.engines.base import Engine
 from Scraplex.engines.cloudscraper import CloudscraperEngine
 from Scraplex.engines.curl_cffi import CurlCffiEngine
+from Scraplex.engines.scrapling import ScraplingEngine
+from Scraplex.engines.seleniumbase import SeleniumBaseEngine
 from Scraplex.engines.wreq import WreqEngine
 from Scraplex.exceptions import EngineNotImplemented, EngineUnavailable
 from Scraplex.types import EngineId
@@ -15,6 +17,8 @@ _REGISTRY: dict[EngineId, EngineFactory] = {
     "wreq": WreqEngine,
     "curl_cffi": CurlCffiEngine,
     "cloudscraper": CloudscraperEngine,
+    "scrapling": ScraplingEngine,
+    "seleniumbase": SeleniumBaseEngine,
 }
 
 
