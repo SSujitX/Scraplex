@@ -70,8 +70,10 @@ class WreqEngine:
 
     @property
     def client(self) -> BlockingClient:
+        """Return wreq blocking Client with Chrome131 emulation enabled."""
         if self._client is None:
-            self._client = _blocking_client()()
+            import wreq
+            self._client = _blocking_client()(emulation=wreq.Emulation.Chrome131)
         return self._client
 
     def installed(self) -> bool:

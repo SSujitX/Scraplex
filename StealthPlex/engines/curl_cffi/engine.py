@@ -68,9 +68,9 @@ class CurlCffiEngine:
 
     @property
     def session(self) -> Session:
-        """Return curl_cffi Session; creates session on first access."""
+        """Return curl_cffi Session with Chrome impersonation enabled."""
         if self._session is None:
-            self._session = _import_curl_cffi_session()()
+            self._session = _import_curl_cffi_session()(impersonate="chrome")
         return self._session
 
     def installed(self) -> bool:
