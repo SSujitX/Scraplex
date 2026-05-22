@@ -1,5 +1,6 @@
 from Scraplex.engines.cloudscraper.proxy import CloudscraperProxy
 from Scraplex.engines.curl_cffi.proxy import CurlCffiProxy
+from Scraplex.engines.seleniumbase.proxy import SeleniumBaseProxy
 from Scraplex.engines.wreq.proxy import WreqProxy
 from Scraplex.exceptions import (
     ClientConfigError,
@@ -32,8 +33,10 @@ __all__ = [
     "FetchError",
     "Response",
     "ScraplexError",
+    "SeleniumBaseProxy",
     "WreqProxy",
     "cloudscraper_fetch",
+    "seleniumbase_fetch",
     "curl_fetch",
     "wreq_fetch",
 ]
@@ -51,4 +54,9 @@ def wreq_fetch() -> WreqProxy:
 
 def cloudscraper_fetch() -> CloudscraperProxy:
     """Shortcut for ``Fetch(engine=\"cloudscraper\")``."""
+    ...
+
+
+def seleniumbase_fetch() -> SeleniumBaseProxy:
+    """Shortcut for ``Fetch(engine=\"seleniumbase\")``."""
     ...
